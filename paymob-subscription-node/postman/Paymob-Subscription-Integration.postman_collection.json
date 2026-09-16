@@ -1,0 +1,139 @@
+{
+  "info": {
+    "name": "Paymob Subscription Integration - Node.js",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "authToken", "value": "" },
+    { "key": "planId", "value": "11949" },
+    { "key": "subscriptionId", "value": "13386" },
+    { "key": "cardId", "value": "13555" },
+    { "key": "webhookUrl", "value": "https://your-public-url.example.com/webhooks/paymob" }
+  ],
+  "item": [
+    {
+      "name": "1 - Generate Authentication Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"api_key\": \"{{paymobApiKey}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/paymob/auth"
+      }
+    },
+    {
+      "name": "2 - Create Subscription Plan",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "{{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"frequency\": 30,\n  \"name\": \"Aya Monthly Subscription\",\n  \"webhook_url\": \"{{webhookUrl}}\",\n  \"reminder_days\": 3,\n  \"retrial_days\": 2,\n  \"plan_type\": \"rent\",\n  \"number_of_deductions\": null,\n  \"amount_cents\": 10000,\n  \"use_transaction_amount\": false,\n  \"is_active\": true,\n  \"integration\": 5911776\n}"
+        },
+        "url": "{{baseUrl}}/api/paymob/subscription-plans"
+      }
+    },
+    {
+      "name": "3 - Create Subscription Intention",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Token", "value": "{{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 200000,\n  \"currency\": \"EGP\",\n  \"payment_methods\": [5404200],\n  \"subscription_plan_id\": \"{{planId}}\",\n  \"billing_data\": {\n    \"first_name\": \"Aya\",\n    \"last_name\": \"Osama\",\n    \"email\": \"aya@example.com\",\n    \"phone_number\": \"01118227661\",\n    \"country\": \"EG\",\n    \"city\": \"Cairo\",\n    \"street\": \"Test Street\",\n    \"building\": \"1\",\n    \"floor\": \"1\",\n    \"apartment\": \"1\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/api/paymob/intentions"
+      }
+    },
+    {
+      "name": "4 - Add Secondary Card Intention",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Token", "value": "{{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 70000,\n  \"currency\": \"EGP\",\n  \"payment_methods\": [5404200],\n  \"billing_data\": {\n    \"first_name\": \"Aya\",\n    \"last_name\": \"Osama\",\n    \"email\": \"aya@example.com\",\n    \"phone_number\": \"01118227661\",\n    \"country\": \"EG\",\n    \"city\": \"Cairo\",\n    \"street\": \"Test Street\",\n    \"building\": \"1\",\n    \"floor\": \"1\",\n    \"apartment\": \"1\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/api/paymob/subscriptions/{{subscriptionId}}/secondary-card-intention"
+      }
+    },
+    {
+      "name": "5 - Get Subscription Card Tokens",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "{{authToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/paymob/subscriptions/{{subscriptionId}}/card-tokens"
+      }
+    },
+    {
+      "name": "6 - Change Subscription Primary Card",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "{{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"card\": {{cardId}}\n}"
+        },
+        "url": "{{baseUrl}}/api/paymob/subscriptions/{{subscriptionId}}/change-primary-card"
+      }
+    },
+    {
+      "name": "7 - Suspend Subscription",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "{{authToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/paymob/subscriptions/{{subscriptionId}}/suspend"
+      }
+    },
+    {
+      "name": "8 - Register Webhook",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "{{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"url\": \"{{webhookUrl}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/paymob/subscriptions/{{subscriptionId}}/register-webhook"
+      }
+    },
+    {
+      "name": "9 - Local Webhook Receiver",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"trigger_type\": \"Subscription Created\",\n  \"subscription_data\": {\n    \"id\": 13386,\n    \"state\": \"active\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/webhooks/paymob"
+      }
+    }
+  ]
+}
